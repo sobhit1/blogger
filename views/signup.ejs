@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("./partials/head.ejs") %>
+    <title>Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .bodycss {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            height: 100vh;
+        }
+
+        .containercss {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+
+        .headingcss {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-groupcss {
+            margin-bottom: 15px;
+        }
+
+        .labelcss {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-controlcss {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-controlcss:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .btncss {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btncss:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .containercss {
+                padding: 20px;
+            }
+
+            .headingcss {
+                font-size: 20px;
+            }
+
+            .btncss {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="bodycss">
+    <%- include("./partials/nav.ejs") %>
+    <div class="containercss">
+        <div class="headingcss">Signup</div>
+        <form action="/user/signup" method="post">
+            <div class="form-groupcss">
+                <label class="labelcss" for="name">Name</label>
+                <input type="text" class="form-controlcss" id="name" name="name" placeholder="Enter name">
+            </div>
+            <div class="form-groupcss">
+                <label class="labelcss" for="email">Email address</label>
+                <input type="email" class="form-controlcss" id="email" name="email" placeholder="Enter email">
+            </div>
+            <div class="form-groupcss">
+                <label class="labelcss" for="password">Password</label>
+                <input type="password" class="form-controlcss" id="password" name="password" placeholder="Password">
+            </div>
+            <button type="submit" class="btncss">Submit</button>
+        </form>
+    </div>
+    <%- include("./partials/scripts.ejs") %>
+</body>
+</html>
