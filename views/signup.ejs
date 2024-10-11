@@ -76,6 +76,14 @@
             background-color: #0056b3;
         }
 
+        .alertcss {
+            width: 100%; /* Match the width of the form */
+            max-width: 400px; /* Limit the width like the form */
+            margin: 30px auto; /* Center align */
+            padding: 15px;
+            border-radius: 8px;
+        }
+
         @media (max-width: 600px) {
             .containercss {
                 padding: 20px;
@@ -93,6 +101,14 @@
 </head>
 <body class="bodycss">
     <%- include("./partials/nav.ejs") %>
+
+    <% if (locals.error) { %>
+        <div class="alert alert-danger alert-dismissible fade show alertcss" role="alert">
+            <strong>Error!</strong> <%= locals.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
     <div class="containercss">
         <div class="headingcss">Signup</div>
         <form action="/user/signup" method="post">
@@ -110,7 +126,12 @@
             </div>
             <button type="submit" class="btncss">Submit</button>
         </form>
-    </div>
+    
+        <div style="text-align: center; margin-top: 20px; ">
+            <p>Already have an account? <a href="/user/signin" style="color: #007bff; font-weight: 600;">Sign in</a></p>
+        </div>        
+    </div>    
+    
     <%- include("./partials/scripts.ejs") %>
 </body>
 </html>

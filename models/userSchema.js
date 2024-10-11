@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { createHmac, randomBytes } = require("crypto");
+const { createTokenForUser } = require("../services/authentication");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema({
     },
     profileImageURL: {
         type: String,
-        default: '../public/images/profile.png'
+        default: '/public/images/profile.png'
     },
     role: {
         type: String,
@@ -32,22 +33,23 @@ userSchema.pre('save', function(next) {
     if(!user.isModified('password')) {
         return next();
     }
-    const salt=randomBytes(16).toString();
+    const salt=randomBytes(16).toString('hex');
     const hashedPassword = createHmac('sha256', salt)
         .update(user.password)
         .digest('hex');
-    this.salt = salt;
-    this.password = hashedPassword;
+    user.salt = salt;
+    user.password = hashedPassword;
     next();
 })
 
-userSchema.static('matchPassword', async function(email, password) {
+userSchema.static('matchPasswordAndGenerateToken', async function(email, password) {
     const user = await this.findOne({ email: email });
     const salt = user.salt;
     const userProvidedHash = createHmac('sha256', salt)
         .update(password)
         .digest('hex');
-    return user.password === userProvidedHash;
+    const token = createTokenForUser(user);
+    return ((userProvidedHash === user.password) ? token : null);
 });
 
 const User = mongoose.model('User', userSchema)
