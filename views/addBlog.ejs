@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("./partials/head.ejs") %>
+    <title>Add New Blog</title>
+</head>
+<body>
+    <%- include("./partials/nav.ejs") %>
+
+    <div class="container" style="max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+        <div class="heading" style="text-align: center; margin-bottom: 20px; font-size: 24px; color: #333;">Add New Blog</div>
+        <form action="/blog" method="POST" enctype="multipart/form-data">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="label" for="title" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Title</label>
+                <input type="text" class="input" id="title" name="title" placeholder="Enter blog title" required style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="label" for="content" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Content</label>
+                <textarea class="input" id="content" name="content" rows="5" placeholder="Enter blog content" required style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="label" for="coverImage" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Cover Image</label>
+                <input type="file" class="input" id="coverImage" name="coverImage" required accept="image/*" style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+            </div>
+            <button type="submit" class="button" style="display: block; width: 100%; padding: 10px; background-color: #007bff; border: none; color: white; font-size: 18px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; font-weight: bold;">Add Blog</button>
+        </form>
+    </div>    
+
+    <%- include("./partials/scripts.ejs") %>
+</body>
+</html>
