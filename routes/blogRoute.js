@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const Blog = require("../models/blog");
+const Comment = require("../models/comment");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -33,6 +34,27 @@ const upload = multer({
 
 router.get("/add-new", async (req, res) => {
     res.render("addBlog", { user: req.user });
+});
+
+router.get("/:id", async (req, res) => {
+    const blog = await Blog.findById(req.params.id).populate("createdBy");
+    const comments = await Comment.find({ blogID: req.params.id }).populate("createdBy");
+    res.render("viewBlog", { blog, comments, user: req.user });
+});
+
+router.post("/comment/:blogId", async (req, res) => {
+    try {
+        const comment = new Comment({
+            content: req.body.comment,
+            blogID: req.params.blogId,
+            createdBy: req.user._id
+        });
+        await comment.save();
+        return res.redirect(`/blog/${req.params.blogId}`);
+    } catch (err) {
+        console.error("Error saving comment:", err);
+        return res.status(500).send("Error saving comment.");
+    }
 });
 
 router.post("/", upload.single("coverImage"), async (req, res) => {
