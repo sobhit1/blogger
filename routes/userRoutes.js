@@ -29,8 +29,7 @@ router.post("/signup",
       if (userExists) {
         return res.render("signup", { error: "User already exists" });
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new User({ name, email, password: hashedPassword });
+      const newUser = new User({ name, email, password: password });
       await newUser.save();
       return res.redirect("/signin");
     }

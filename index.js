@@ -21,9 +21,10 @@ if (!MONGO_URL) {
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(MONGO_URL);
     console.log("MongoDB Connected Successfully!");
-  } catch (error) {
+  }
+  catch (error) {
     console.error("MongoDB Connection Error:", error);
     process.exit(1);
   }
