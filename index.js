@@ -1,58 +1,63 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+
 const { checkForAuthCookie } = require("./middlewares/auth");
-require("dotenv").config();
 const userRoutes = require("./routes/userRoutes");
 const blogRoutes = require("./routes/blogRoute");
 const Blog = require("./models/blog");
 
 const app = express();
 
-const mongoUrl = process.env.MONGO_URL;
-const port = process.env.PORT || 8000;
+const MONGO_URL = process.env.MONGO_URL;
+const PORT = process.env.PORT || 8000;
 
-if (!mongoUrl) {
-  console.error("Error: MONGO_URL not set in .env file");
+if (!MONGO_URL) {
+  console.error("Error: MONGO_URL is not set in .env file");
   process.exit(1);
 }
 
-mongoose
-  .connect(mongoUrl)
-  .then(() => {
-    console.log("MongoDB Connected");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log("MongoDB Connected Successfully!");
+  } catch (error) {
+    console.error("MongoDB Connection Error:", error);
     process.exit(1);
-  });
+  }
+};
+
+connectDB();
 
 app.set("view engine", "ejs");
-app.set("views", path.resolve("./views"));
+app.set("views", path.resolve("views"));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(checkForAuthCookie("token"));
-app.use(express.static(path.resolve("./public")));
+app.use(express.static(path.resolve("public")));
 
 app.get("/", async (req, res) => {
   try {
     const allBlogs = await Blog.find({}).sort({ createdAt: -1 });
     res.render("home", { user: req.user, blogs: allBlogs });
-  } catch (err) {
-    console.error("Error fetching blogs:", err);
-    res.status(500).send("Error fetching blogs.");
+  }
+  catch (error) {
+    console.error("Error Fetching Blogs:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
 app.use("/user", userRoutes);
 app.use("/blog", blogRoutes);
 
-app.listen(port, (err) => {
-  if (err) {
-    console.error("Failed to start server:", err);
-    process.exit(1);
-  }
-  console.log(`Server started on http://localhost:${port}`);
+app.use((err, req, res, next) => {
+  console.error("Unexpected Error:", err);
+  res.status(500).json({ message: "Something went wrong. Please try again later." });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at: http://localhost:${PORT}`);
 });

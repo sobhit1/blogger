@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { createHmac, randomBytes } = require("crypto");
+const bcrypt = require("bcryptjs");
 const { createTokenForUser } = require("../services/authentication");
 
 const userSchema = new mongoose.Schema({
@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    salt: String,
     password: {
         type: String,
         required: true
@@ -28,30 +27,37 @@ const userSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', async function(next) {
     const user = this;
-    if(!user.isModified('password')) {
-        return next();
+    if (user.isModified('password')) {
+        try {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+        }
+        catch (error) {
+            return next(error);
+        }
     }
-    const salt=randomBytes(16).toString('hex');
-    const hashedPassword = createHmac('sha256', salt)
-        .update(user.password)
-        .digest('hex');
-    user.salt = salt;
-    user.password = hashedPassword;
     next();
-})
-
-userSchema.static('matchPasswordAndGenerateToken', async function(email, password) {
-    const user = await this.findOne({ email: email });
-    const salt = user.salt;
-    const userProvidedHash = createHmac('sha256', salt)
-        .update(password)
-        .digest('hex');
-    const token = createTokenForUser(user);
-    return ((userProvidedHash === user.password) ? token : null);
 });
 
-const User = mongoose.model('User', userSchema)
+userSchema.statics.matchPasswordAndGenerateToken = async function(email, password) {
+    try {
+        const user = await this.findOne({ email: email });
+        if (!user)  return null;
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            const token = createTokenForUser(user);
+            return token;
+        }
+        else  return null;
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
+};
+
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

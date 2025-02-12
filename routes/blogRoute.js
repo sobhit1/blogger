@@ -22,7 +22,8 @@ const fileFilter = (req, file, cb) => {
 
     if (mimetype && extname) {
         return cb(null, true);
-    } else {
+    }
+    else {
         cb(new Error('Error: File type not supported!'), false);
     }
 };
@@ -32,49 +33,58 @@ const upload = multer({
     fileFilter
 });
 
-router.get("/add-new", async (req, res) => {
+router.get("/add-new", (req, res) => {
     res.render("addBlog", { user: req.user });
 });
 
 router.get("/:id", async (req, res) => {
-    const blog = await Blog.findById(req.params.id).populate("createdBy");
-    const comments = await Comment.find({ blogID: req.params.id }).populate("createdBy");
-    res.render("viewBlog", { blog, comments, user: req.user });
+    try {
+        const blog = await Blog.findById(req.params.id).populate("createdBy");
+        const comments = await Comment.find({ blogID: req.params.id }).populate("createdBy");
+        res.render("viewBlog", { blog, comments, user: req.user });
+    }
+    catch (err) {
+        console.error("Error retrieving blog or comments:", err);
+        res.status(500).send("Error retrieving blog or comments.");
+    }
 });
 
 router.post("/comment/:blogId", async (req, res) => {
+    const { comment } = req.body;
+    if (!comment || !comment.trim()) {
+        return res.status(400).send("Comment cannot be empty.");
+    }
     try {
-        const comment = new Comment({
-            content: req.body.comment,
+        const newComment = new Comment({
+            content: comment.trim(),
             blogID: req.params.blogId,
             createdBy: req.user._id
         });
-        await comment.save();
+        await newComment.save();
         return res.redirect(`/blog/${req.params.blogId}`);
-    } catch (err) {
+    }
+    catch (err) {
         console.error("Error saving comment:", err);
-        return res.status(500).send("Error saving comment.");
+        res.status(500).send("Error saving comment.");
     }
 });
 
 router.post("/", upload.single("coverImage"), async (req, res) => {
     const { title, content } = req.body;
-
-    if (!req.file) {
-        return res.status(400).send("Error: No file uploaded.");
+    if (!title || !content || !req.file) {
+        return res.status(400).send("Error: Title, content, and cover image are required.");
     }
-
     try {
         const newBlog = new Blog({
-            title,
-            content,
+            title: title.trim(),
+            content: content.trim(),
             coverImage: `/uploads/${req.file.filename}`,
             createdBy: req.user._id
         });
-
-        await newBlog.save(); 
+        await newBlog.save();
         return res.redirect(`/blog/${newBlog._id}`);
-    } catch (err) {
+    }
+    catch (err) {
         console.error("Error saving blog:", err);
         return res.status(500).send("Error saving blog.");
     }
