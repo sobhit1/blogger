@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/userSchema");
 const { body, validationResult } = require("express-validator");
-const bcrypt = require("bcryptjs");
 
 router.get("/signin", (req, res) => {
   res.render("signin");

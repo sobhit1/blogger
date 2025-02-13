@@ -28,7 +28,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ 
+const upload = multer({
     storage,
     fileFilter
 });
@@ -46,6 +46,36 @@ router.get("/:id", async (req, res) => {
     catch (err) {
         console.error("Error retrieving blog or comments:", err);
         res.status(500).send("Error retrieving blog or comments.");
+    }
+});
+
+router.post("/delete/:id", async (req, res) => {
+    try {
+        await Comment.deleteMany({ blogID: req.params.id });
+        const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+        if (!deletedBlog) {
+            return res.status(404).send("Blog not found.");
+        }
+        return res.redirect(`/`);
+    }
+    catch (err) {
+        console.error("Error deleting blog :", err);
+        res.status(500).send("Error deleting blog.");
+    }
+});
+
+router.post("/comment/delete/:id", async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+        if (!comment) {
+            return res.status(404).send("Comment not found.");
+        }
+        await Comment.deleteOne({ _id: comment._id });
+        return res.redirect(`/blog/${comment.blogID}`);
+    }
+    catch (err) {
+        console.error("Error deleting comment :", err);
+        res.status(500).send("Error deleting comment.");
     }
 });
 
