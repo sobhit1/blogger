@@ -1,5 +1,6 @@
 const Blog = require("../models/blog");
 const Comment = require("../models/comment");
+const cloudinary = require('cloudinary').v2;
 
 const searchBlog = async (req, res) => {
     try {
@@ -32,15 +33,19 @@ const displayBlog = async (req, res) => {
 
 const deleteBlog = async (req, res) => {
     try {
-        await Comment.deleteMany({ blogID: req.params.id });
-        const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
-        if (!deletedBlog) {
-            return res.status(404).send("Blog not found.");
+        const blog = await Blog.findById(req.params.id);
+        if (!blog) {
+            return res.status(404).send("Blog not found");
         }
-        return res.redirect(`/`);
+        const imagePublicId=`uploads/${blog.coverImage.split('/upload/')[1].split('.')[0].split('/')[2]}`;
+        if (imagePublicId) {
+            await cloudinary.uploader.destroy(imagePublicId);
+        }
+        await Blog.findByIdAndDelete(req.params.id);
+        res.redirect("/");
     }
-    catch (err) {
-        console.error("Error deleting blog :", err);
+    catch (error) {
+        console.error("Error deleting blog:", error);
         res.status(500).send("Error deleting blog.");
     }
 }
@@ -81,13 +86,13 @@ const addComment = async (req, res) => {
 const blogUpload = async (req, res) => {
     const { title, content } = req.body;
     if (!title || !content || !req.file) {
-        return res.status(400).send("Error: Title, content, and cover image are required.");
+        return res.status(400).send("Error: Title, content and cover image are required.");
     }
     try {
         const newBlog = new Blog({
             title: title.trim(),
             content: content.trim(),
-            coverImage: `/uploads/${req.file.filename}`,
+            coverImage: req.file.path,
             createdBy: req.user._id
         });
         await newBlog.save();

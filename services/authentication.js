@@ -13,9 +13,8 @@ const createTokenForUser = (user, expiresIn = "1d") => {
         name: user.name,
         email: user.email,
         profileImageURL: user.profileImageURL,
-        role: user.role,
+        role: user.role
     };
-
     try {
         const token = JWT.sign(payload, secret, { expiresIn: "1d"});
         return token;
