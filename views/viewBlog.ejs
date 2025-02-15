@@ -273,7 +273,7 @@
                         <% if (locals.user) { %>
                             <div class="comment-container">
                                 <form action="/blog/comment/<%= blog.id %>" method="POST" class="comment-form">
-                                    <textarea id="comment-textarea" name="commentText" placeholder="Write a comment..."
+                                    <textarea id="comment-textarea" name="comment" placeholder="Write a comment..."
                                         required></textarea>
                                     <button type="submit">Post Comment</button>
                                 </form>

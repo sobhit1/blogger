@@ -21,8 +21,8 @@ const searchBlog = async (req, res) => {
 
 const displayBlog = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).populate("createdBy");
-        const comments = await Comment.find({ blogID: req.params.id }).populate("createdBy");
+        const blog = await Blog.findById(req.params.blogId).populate("createdBy");
+        const comments = await Comment.find({ blogID: req.params.blogId }).populate("createdBy");
         res.render("viewBlog", { blog, comments, user: req.user });
     }
     catch (err) {
@@ -33,7 +33,7 @@ const displayBlog = async (req, res) => {
 
 const deleteBlog = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id);
+        const blog = await Blog.findById(req.params.blogId);
         if (!blog) {
             return res.status(404).send("Blog not found");
         }
@@ -41,7 +41,7 @@ const deleteBlog = async (req, res) => {
         if (imagePublicId) {
             await cloudinary.uploader.destroy(imagePublicId);
         }
-        await Blog.findByIdAndDelete(req.params.id);
+        await Blog.findByIdAndDelete(req.params.blogId);
         res.redirect("/");
     }
     catch (error) {
@@ -51,7 +51,7 @@ const deleteBlog = async (req, res) => {
 }
 const deleteComment = async (req, res) => {
     try {
-        const comment = await Comment.findById(req.params.id);
+        const comment = await Comment.findById(req.params.commId);
         if (!comment) {
             return res.status(404).send("Comment not found.");
         }
@@ -63,25 +63,27 @@ const deleteComment = async (req, res) => {
         res.status(500).send("Error deleting comment.");
     }
 }
+
 const addComment = async (req, res) => {
-    const { comment } = req.body;
-    if (!comment || !comment.trim()) {
-        return res.status(400).send("Comment cannot be empty.");
-    }
     try {
+        const { comment } = req.body;
+        const blogId = req.params.blogId;
+        if (!comment || !comment.trim()) {
+            return res.status(400).json({ error: "Comment cannot be empty." });
+        }
         const newComment = new Comment({
             content: comment.trim(),
-            blogID: req.params.blogId,
+            blogID: blogId,
             createdBy: req.user._id
         });
         await newComment.save();
-        return res.redirect(`/blog/${req.params.blogId}`);
+        return res.redirect(`/blog/${blogId}`);
     }
     catch (err) {
         console.error("Error saving comment:", err);
-        res.status(500).send("Error saving comment.");
+        res.status(500).json({ error: "An error occurred while saving the comment." });
     }
-}
+};
 
 const blogUpload = async (req, res) => {
     const { title, content } = req.body;

@@ -10,11 +10,11 @@ router.get("/add-new", (req, res) => {
 
 router.get("/search", searchBlog);
 
-router.get("/:id", displayBlog);
+router.get("/:blogId", displayBlog);
 
-router.post("/delete/:id", deleteBlog);
+router.post("/delete/:blogId", deleteBlog);
 
-router.post("/comment/delete/:id", deleteComment);
+router.post("/comment/delete/:commId", deleteComment);
 
 router.post("/comment/:blogId", addComment);
 
