@@ -278,10 +278,10 @@
                                     <button type="submit">Post Comment</button>
                                 </form>
                             </div>
-                            <% } else { %>
+                            <% }
+                            else { %>
                                 <p style="color: gray; text-align: center; margin-top: 20px;">
-                                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to
-                                    post a
+                                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to post a
                                     comment.
                                 </p>
                                 <% } %>
@@ -300,8 +300,7 @@
                                                                 <%= comment.createdBy.name %>
                                                             </span>
                                                             <% if (locals.user &&
-                                                                (user._id===comment.createdBy._id.toString() ||
-                                                                user.role==='ADMIN' )) { %>
+                                                                (user._id===comment.createdBy._id.toString() || user.role==='ADMIN')) { %>
                                                                 <form class="delete-comment-form"
                                                                     action="/blog/comment/delete/<%= comment.id %>"
                                                                     method="POST">
@@ -321,9 +320,8 @@
 
             </div>
         </div>
-
-        <%- include("./partials/scripts.ejs") %>
 </body>
+
 <script>
     function adjustHeight(element) {
         element.style.height = "auto";
