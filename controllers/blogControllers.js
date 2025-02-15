@@ -33,15 +33,17 @@ const displayBlog = async (req, res) => {
 
 const deleteBlog = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.blogId);
+        const blogId = req.params.blogId;
+        const blog = await Blog.findById(blogId);
         if (!blog) {
             return res.status(404).send("Blog not found");
         }
-        const imagePublicId=`uploads/${blog.coverImage.split('/upload/')[1].split('.')[0].split('/')[2]}`;
+        const imagePublicId = `uploads/${blog.coverImage.split('/upload/')[1].split('.')[0].split('/')[2]}`;
         if (imagePublicId) {
             await cloudinary.uploader.destroy(imagePublicId);
         }
-        await Blog.findByIdAndDelete(req.params.blogId);
+        await Comment.deleteMany({ blogID: blogId });
+        await Blog.findByIdAndDelete(blogId);
         res.redirect("/");
     }
     catch (error) {
