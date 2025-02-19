@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include("./partials/head.ejs") %>
@@ -351,6 +351,86 @@
             .edit-blogTitle-btn i {
                 margin-left: 5px;
             }
+
+            .fas {
+                cursor: pointer;
+            }
+            
+            .content-edit-textarea {
+                width: 100%;
+                min-height: 300px;
+                padding: 1rem;
+                border: 2px solid #007bff;
+                border-radius: 4px;
+                font-family: inherit;
+                font-size: 1rem;
+            }
+            
+            .comment-edit-input {
+                width: 100%;
+                min-height: 100px;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                margin-top: 0.5rem;
+            }
+            
+            .save-btn {
+                background-color: #007bff;
+                color: white;
+                padding: 8px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                font-size: 1rem;
+                height: min-content;
+                width: auto;
+            }
+            
+            .save-btn:hover {
+                background-color: #0056b3;
+            }
+            
+            .title-edit-input {
+                font-size: 2.2rem;
+                font-weight: 700;
+                width: 600px;
+                min-height: 60px;
+                padding: 2px;
+                border: 2px solid #007bff;
+                border-radius: 8px;
+                resize: vertical;
+                font-family: 'Helvetica Neue', sans-serif;
+                color: #222;
+                margin-right: 10px;
+            }
+
+            .edit-title-container {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+                margin: 10px 0;
+            }
+
+            .edit-content-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .edit-comment-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .edit-content-container .save-btn,
+            .edit-comment-container .save-btn {
+                align-self: flex-end;
+            }
         </style>
 
 </head>
@@ -359,137 +439,372 @@
     <!-- Including the navigation bar -->
     <%- include("./partials/nav.ejs") %>
 
-    <div class="container mt-5">
-        <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+        <div class="container mt-5">
+            <div class="card" style="display: flex; flex-direction: column; align-items: center;">
 
-            <!-- Edit and Delete Buttons: Shown only to blog creator or admin -->
-            <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
-                <div class="edit-blog-container">
-                    <a href="/blog/edit/<%= blog.id %>" class="edit-blog-btn">
-                        <i class="fas fa-pencil-alt"></i> Edit Post
-                    </a>
-                    <form action="/blog/delete/<%= blog.id %>" method="POST">
-                        <button type="submit" class="delete-blog-btn">
-                            <i class="fas fa-trash"></i> Delete Post
-                        </button>
-                    </form>
-                </div>
-            <% } %>
-
-            <!-- Blog Cover Image -->
-            <div class="image-container">
-                <img src="<%= blog.coverImage %>" class="card-img-top" alt="Cover Image">
-                
-                <!-- Edit Blog Cover Image Button: Shown only to blog creator or admin -->
-                <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
-                    <a href="/blog/edit/<%= blog.id %>" class="edit-image-btn">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
-                <% } %>
-            </div>
-
-            <div class="card-body">
-                <!-- Blog Title -->
-                <div class="card-title-container">
-                    <h2 class="card-title"><%= blog.title %></h2>
-                    <!-- Edit Blog Title Button: Shown only to blog creator or admin -->
-                    <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
-                        <a href="#" class="edit-blogTitle-btn"><i class="fas fa-pencil-alt"></i></a>
-                    <% } %>
-                </div>
-
-                <!-- Blog Content -->
-                <div class="content-container">
-                    <pre><%= blog.content %></pre>
-
-                    <!-- Edit Blog Content Button: Shown only to blog creator or admin -->
-                    <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
-                        <a href="/blog/edit/<%= blog.id %>" class="edit-content-btn">
-                            <i class="fas fa-pencil-alt"></i>
-                        </a>
-                    <% } %>
-                </div>
-            </div>
-
-            <!-- Blog Creation Time -->
-            <span class="blog-time">
-                <%= new Date(blog.createdAt).toLocaleString() %>
-            </span>
-
-            <!-- Author Info Section -->
-            <div class="profile-container">
-                <img src="<%= blog.createdBy.profileImageURL %>" alt="Profile Image" width="50" height="50">
-                <span class="profile-name">
-                    <%= blog.createdBy.name %>
-                </span>
-            </div>
-
-            <!-- Comment Section: Only visible to logged-in users -->
-            <% if (locals.user) { %>
-                <div class="comment-container">
-                    <form action="/blog/comment/<%= blog.id %>" method="POST" class="comment-form">
-                        <textarea id="comment-textarea" name="comment" placeholder="Write a comment..." required></textarea>
-                        <button type="submit">Post Comment</button>
-                    </form>
-                </div>
-            <% } else { %>
-                <!-- Message prompting users to sign in to comment -->
-                <p style="color: gray; text-align: center; margin-top: 20px;">
-                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to post a comment.
-                </p>
-            <% } %>
-
-            <!-- Existing Comments Section: Visible to everyone -->
-            <div class="comment-section">
-                <div class="comment-container">
-                    <h1>Comments (<%= comments.length %>)</h1>
-                    <div class="comment">
-                        <% comments.forEach(comment => { %>
-                            <div class="comment">
-                                <div class="comment-header">
-                                    <!-- Comment Author's Profile Image and Name -->
-                                    <img src="<%= comment.createdBy.profileImageURL %>" alt="Profile Image">
-                                    <span class="profile-name">
-                                        <%= comment.createdBy.name %>
-                                    </span>
-
-                                    <!-- Comment Timestamp -->
-                                    <span class="comment-time">
-                                        <%= new Date(comment.createdAt).toLocaleString() %>
-                                    </span>
-
-                                    <!-- Edit and Delete Comment Buttons: Shown only to comment creator or admin -->
-                                    <% if (locals.user && (locals.user._id===comment.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
-                                        <button type="submit" class="edit-comment-btn">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button>                                        
-                                        <form class="delete-comment-form" action="/blog/comment/delete/<%= comment.id %>" method="POST">
-                                            <button type="submit" class="delete-comment-btn">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    <% } %>
-                                </div>
-                                <!-- Comment Content -->
-                                <pre><%= comment.content %></pre>
-                            </div>
-                        <% }); %>
+                <!-- Edit and Delete Buttons: Shown only to blog creator or admin -->
+                <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' ))
+                    { %>
+                    <div class="edit-blog-container">
+                        <form action="/blog/delete/<%= blog.id %>" method="POST">
+                            <button type="submit" class="delete-blog-btn">
+                                <i class="fas fa-trash"></i> Delete Post
+                            </button>
+                        </form>
                     </div>
-                </div>
+                    <% } %>
+
+                        <!-- Blog Cover Image -->
+                        <div class="image-container">
+                            <img src="<%= blog.coverImage %>" class="card-img-top" alt="Cover Image">
+
+                            <!-- Edit Blog Cover Image Button -->
+                            <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() ||
+                                locals.user.role==='ADMIN' )) { %>
+                                <label class="edit-image-btn">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    <input type="file" id="coverImageInput" style="display: none;" accept="image/*">
+                                </label>
+                                <% } %>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Blog Title -->
+                            <div class="card-title-container">
+                                <h2 class="card-title">
+                                    <span id="titleText">
+                                        <%= blog.title %>
+                                    </span>
+                                </h2>
+                                <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() ||
+                                    locals.user.role==='ADMIN' )) { %>
+                                    <a href="#" class="edit-blogTitle-btn" id="editTitleBtn">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                    <% } %>
+                            </div>
+
+                            <!-- Blog Content -->
+                            <div class="content-container">
+                                <div id="contentText" class="content-text">
+                                    <pre><%= blog.content %></pre>
+                                </div>
+                                <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() ||
+                                    locals.user.role==='ADMIN' )) { %>
+                                    <a href="#" class="edit-content-btn" id="editContentBtn">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                    <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Blog Creation Time -->
+                        <span class="blog-time">
+                            <%= new Date(blog.createdAt).toLocaleString() %>
+                        </span>
+
+                        <!-- Author Info Section -->
+                        <div class="profile-container">
+                            <img src="<%= blog.createdBy.profileImageURL %>" alt="Profile Image" width="50" height="50">
+                            <span class="profile-name">
+                                <%= blog.createdBy.name %>
+                            </span>
+                        </div>
+
+                        <!-- Comment Section: Only visible to logged-in users -->
+                        <% if (locals.user) { %>
+                            <div class="comment-container">
+                                <form action="/blog/comment/<%= blog.id %>" method="POST" class="comment-form">
+                                    <textarea id="comment-textarea" name="comment" placeholder="Write a comment..."
+                                        required></textarea>
+                                    <button type="submit">Post Comment</button>
+                                </form>
+                            </div>
+                            <% } else { %>
+                                <!-- Message prompting users to sign in to comment -->
+                                <p style="color: gray; text-align: center; margin-top: 20px;">
+                                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to
+                                    post a comment.
+                                </p>
+                                <% } %>
+
+                                    <!-- Existing Comments Section: Visible to everyone -->
+                                    <div class="comment-section">
+                                        <div class="comment-container">
+                                            <h1>Comments (<%= comments.length %>)</h1>
+                                            <% comments.forEach(comment=> { %>
+                                                <div class="comment" data-comment-id="<%= comment.id %>">
+                                                    <div class="comment-header">
+                                                        <!-- Comment Author's Profile Image and Name -->
+                                                        <img src="<%= comment.createdBy.profileImageURL %>"
+                                                            alt="Profile Image">
+                                                        <span class="profile-name">
+                                                            <%= comment.createdBy.name %>
+                                                        </span>
+
+                                                        <!-- Comment Timestamp -->
+                                                        <span class="comment-time">
+                                                            <%= new Date(comment.createdAt).toLocaleString() %>
+                                                        </span>
+
+                                                        <!-- Edit and Delete Comment Buttons: Shown only to comment creator or admin -->
+                                                        <% if (locals.user &&
+                                                            (locals.user._id===comment.createdBy._id.toString() ||
+                                                            locals.user.role==='ADMIN' )) { %>
+                                                            <button type="button" class="edit-comment-btn">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </button>
+                                                            <form class="delete-comment-form"
+                                                                action="/blog/comment/delete/<%= comment.id %>"
+                                                                method="POST">
+                                                                <button type="submit" class="delete-comment-btn">
+                                                                    <i class="fas fa-trash-alt"></i>
+                                                                </button>
+                                                            </form>
+                                                            <% } %>
+                                                    </div>
+                                                    <!-- Comment Content -->
+                                                    <pre><%= comment.content %></pre>
+                                                </div>
+                                                <% }); %>
+                                        </div>
+                                    </div>
             </div>
 
         </div>
-    </div>
+        </div>
 
 </body>
 
 <%- include("./partials/scripts.ejs") %>
 
-<script>
-    function adjustHeight(element) {
-        element.style.height = "auto";
-        element.style.height = (element.scrollHeight) + "px";
-    }
-</script>
+    <script>
+        const coverImageInput = document.getElementById('coverImageInput');
+        if (coverImageInput) {
+            coverImageInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('coverImage', file);
+
+                try {
+                    const response = await fetch(`/blog/update-cover/<%= blog.id %>`, {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        document.querySelector('.card-img-top').src = result.newImageUrl;
+                    } else {
+                        alert('Failed to update cover image');
+                    }
+                } catch {
+                    alert('An error occurred');
+                }
+            });
+        }
+
+        const editTitleBtn = document.getElementById('editTitleBtn');
+        let titleText = document.getElementById('titleText');
+
+        if (editTitleBtn && titleText) {
+            editTitleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const editContainer = document.createElement('div');
+                editContainer.className = 'edit-title-container';
+
+                const input = document.createElement('textarea');
+                input.value = titleText.textContent.trim();
+                input.className = 'title-edit-input';
+                input.style.fontSize = '1.5rem';
+                input.style.textAlign = 'center';
+
+                input.style.height = input.scrollHeight + 'px';
+
+                input.addEventListener('input', () => {
+                    input.style.height = 'auto';
+                    input.style.height = input.scrollHeight + 'px';
+                });
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'save-btn';
+                saveBtn.textContent = 'Save';
+
+                editContainer.appendChild(input);
+                editContainer.appendChild(saveBtn);
+                titleText.replaceWith(editContainer);
+
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+
+                const saveTitle = async () => {
+                    try {
+                        const response = await fetch(`/blog/update-title/<%= blog.id %>`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ title: input.value }),
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            const newTitle = document.createElement('span');
+                            newTitle.id = 'titleText';
+                            newTitle.textContent = input.value;
+                            editContainer.replaceWith(newTitle);
+                            titleText = newTitle;
+                        } else {
+                            alert('Failed to update title');
+                            editContainer.replaceWith(titleText);
+                        }
+                    } catch {
+                        alert('An error occurred while updating the title');
+                        editContainer.replaceWith(titleText);
+                    }
+                };
+
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    saveTitle();
+                });
+                input.addEventListener('blur', (e) => {
+                    if (document.activeElement !== saveBtn) {
+                        editContainer.replaceWith(titleText);
+                    }
+                });
+            });
+        }
+
+        const editContentBtn = document.getElementById('editContentBtn');
+        const contentText = document.getElementById('contentText');
+
+        if (editContentBtn && contentText) {
+            editContentBtn.addEventListener('click', (e) => {
+                editContentBtn.style.display = 'none';
+                e.preventDefault();
+                const originalContent = contentText.querySelector('pre').textContent;
+
+                const editContainer = document.createElement('div');
+                editContainer.className = 'edit-content-container';
+
+                const textarea = document.createElement('textarea');
+                textarea.className = 'content-edit-textarea';
+                textarea.value = originalContent;
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'save-btn';
+                saveBtn.textContent = 'Save';
+
+                editContainer.appendChild(textarea);
+                editContainer.appendChild(saveBtn);
+                contentText.querySelector('pre').replaceWith(editContainer);
+
+                const saveContent = async () => {
+                    try {
+                        const response = await fetch(`/blog/update-content/<%= blog.id %>`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content: textarea.value }),
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            const newPre = document.createElement('pre');
+                            newPre.textContent = textarea.value;
+                            editContainer.replaceWith(newPre);
+                        } else {
+                            alert('Failed to update content');
+                            editContainer.replaceWith(contentText.querySelector('pre'));
+                        }
+                    } catch {
+                        alert('An error occurred while updating the content');
+                        editContainer.replaceWith(contentText.querySelector('pre'));
+                    }
+                };
+
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    saveContent();
+                });
+            });
+        }
+
+        document.querySelectorAll('.edit-comment-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const commentDiv = btn.closest('.comment');
+                const commentId = commentDiv.dataset.commentId;
+                const commentText = commentDiv.querySelector('pre');
+                const originalContent = commentText.textContent;
+
+                const editContainer = document.createElement('div');
+                editContainer.className = 'edit-comment-container';
+
+                const textarea = document.createElement('textarea');
+                textarea.className = 'comment-edit-input';
+                textarea.value = originalContent;
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'save-btn';
+                saveBtn.innerHTML = 'Save';
+
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'edit-comment-controls';
+
+                editContainer.appendChild(textarea);
+                controlsDiv.appendChild(saveBtn);
+                editContainer.appendChild(controlsDiv);
+
+                commentText.replaceWith(editContainer);
+                textarea.focus();
+
+                const saveComment = async () => {
+                    try {
+                        const response = await fetch(`/blog/comment/update/${commentId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content: textarea.value }),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            const newPre = document.createElement('pre');
+                            newPre.textContent = textarea.value;
+
+                            const timeElement = commentDiv.querySelector('.comment-time');
+                            if (timeElement) {
+                                timeElement.textContent = new Date(result.updatedAt).toLocaleString();
+                            }
+
+                            editContainer.replaceWith(newPre);
+                        } else {
+                            alert('Failed to update comment');
+                            editContainer.replaceWith(commentText);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving the comment');
+                        editContainer.replaceWith(commentText);
+                    }
+                };
+
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    saveComment();
+                });
+
+                textarea.addEventListener('blur', (e) => {
+                    if (!e.relatedTarget || !e.relatedTarget.closest('.save-btn')) {
+                        editContainer.replaceWith(commentText);
+                    }
+                });
+            });
+        });
+
+        function adjustHeight(element) {
+            element.style.height = "auto";
+            element.style.height = element.scrollHeight + "px";
+        }
+    </script>
 
 </html>
