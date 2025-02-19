@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+    
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include("./partials/head.ejs") %>
         <title>Blog</title>
 
@@ -165,6 +165,7 @@
                 display: flex;
                 align-items: center;
                 gap: 15px;
+                position: relative;
             }
 
             .comment img {
@@ -232,98 +233,258 @@
                     max-width: 90%;
                 }
             }
+
+            .edit-blog-container {
+                align-self: flex-end;
+                margin: 0 20px 20px 0;
+                display: flex;
+                gap: 10px;
+            }
+
+            .edit-blog-btn,
+            .delete-blog-btn {
+                padding: 8px 15px;
+                border-radius: 5px;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                text-decoration: none;
+            }
+
+            .edit-blog-btn {
+                background: #007bff;
+                color: white;
+            }
+
+            .edit-blog-btn:hover {
+                background: #0056b3;
+            }
+
+            .image-container {
+                position: relative;
+                max-width: 600px;
+                margin: 20px auto;
+            }
+
+            .edit-image-btn {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 8px;
+                border-radius: 50%;
+                color: #007bff;
+                text-decoration: none;
+                width: 35px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .content-container {
+                position: relative;
+            }
+
+            .edit-content-btn {
+                position: absolute;
+                bottom: 15px;
+                right: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 8px;
+                border-radius: 50%;
+                color: #007bff;
+                text-decoration: none;
+                width: 35px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .blog-time,
+            .comment-time {
+                font-size: 0.9rem;
+                color: #666;
+                margin-left: 10px;
+            }
+
+            .edit-comment-btn {
+                position: absolute;
+                right: 50px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: #007bff;
+                cursor: pointer;
+                padding: 5px;
+                font-size: 14px;
+            }
+
+            .edit-comment-btn:hover {
+                color: #0056b3;
+            }
+
+            .card-title-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .edit-blogTitle-btn {
+                color: #007bff;
+                font-size: 16px;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+            .edit-blogTitle-btn:hover {
+                color: #0056b3;
+            }
+
+            .edit-blogTitle-btn i {
+                margin-left: 5px;
+            }
         </style>
 
 </head>
 
 <body>
+    <!-- Including the navigation bar -->
     <%- include("./partials/nav.ejs") %>
 
-        <div class="container mt-5">
-            <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+    <div class="container mt-5">
+        <div class="card" style="display: flex; flex-direction: column; align-items: center;">
 
-                <% if (locals.user && (user._id===blog.createdBy._id.toString() || user.role==='ADMIN' )) { %>
-                    <div class="delete-blog-container">
-                        <form action="/blog/delete/<%= blog.id %>" method="POST">
-                            <button type="submit" class="delete-blog-btn">
-                                <i class="fas fa-trash"></i> Delete Post
-                            </button>
-                        </form>
-                    </div>
-                    <% } %>
+            <!-- Edit and Delete Buttons: Shown only to blog creator or admin -->
+            <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
+                <div class="edit-blog-container">
+                    <a href="/blog/edit/<%= blog.id %>" class="edit-blog-btn">
+                        <i class="fas fa-pencil-alt"></i> Edit Post
+                    </a>
+                    <form action="/blog/delete/<%= blog.id %>" method="POST">
+                        <button type="submit" class="delete-blog-btn">
+                            <i class="fas fa-trash"></i> Delete Post
+                        </button>
+                    </form>
+                </div>
+            <% } %>
 
-                        <!-- Blog Content Visible to Everyone -->
-                        <img src="<%= blog.coverImage %>" class="card-img-top" alt="Cover Image">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <%= blog.title %>
-                            </h5>
-                            <pre><%= blog.content %></pre>
-                        </div>
-
-                        <!-- Author Info -->
-                        <div class="profile-container">
-                            <img src="<%= blog.createdBy.profileImageURL %>" alt="Profile Image" width="50" height="50">
-                            <span class="profile-name">
-                                <%= blog.createdBy.name %>
-                            </span>
-                        </div>
-
-                        <!-- Comment Section: Only for Logged-in Users -->
-                        <% if (locals.user) { %>
-                            <div class="comment-container">
-                                <form action="/blog/comment/<%= blog.id %>" method="POST" class="comment-form">
-                                    <textarea id="comment-textarea" name="comment" placeholder="Write a comment..."
-                                        required></textarea>
-                                    <button type="submit">Post Comment</button>
-                                </form>
-                            </div>
-                            <% } else { %>
-                                <p style="color: gray; text-align: center; margin-top: 20px;">
-                                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to
-                                    post a
-                                    comment.
-                                </p>
-                                <% } %>
-
-                                    <!-- Existing Comments : Visible to Everyone -->
-                                    <div class="comment-section">
-                                        <div class="comment-container">
-                                            <h1>Comments (<%= comments.length %>)</h1>
-                                            <div class="comment">
-                                                <% comments.forEach(comment=> { %>
-                                                    <div class="comment">
-                                                        <div class="comment-header">
-                                                            <img src="<%= comment.createdBy.profileImageURL %>"
-                                                                alt="Profile Image">
-                                                            <span class="profile-name">
-                                                                <%= comment.createdBy.name %>
-                                                            </span>
-                                                            <% if (locals.user &&
-                                                                (user._id===comment.createdBy._id.toString() ||
-                                                                user.role==='ADMIN' )) { %>
-                                                                <form class="delete-comment-form"
-                                                                    action="/blog/comment/delete/<%= comment.id %>"
-                                                                    method="POST">
-                                                                    <button type="submit" class="delete-comment-btn">
-                                                                        <i class="fas fa-trash-alt"></i>
-                                                                    </button>
-                                                                </form>
-                                                                <% } %>
-                                                        </div>
-                                                        <pre><%= comment.content %></pre>
-                                                    </div>
-                                                    <% }); %>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
+            <!-- Blog Cover Image -->
+            <div class="image-container">
+                <img src="<%= blog.coverImage %>" class="card-img-top" alt="Cover Image">
+                
+                <!-- Edit Blog Cover Image Button: Shown only to blog creator or admin -->
+                <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
+                    <a href="/blog/edit/<%= blog.id %>" class="edit-image-btn">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                <% } %>
             </div>
-        </div>
 
-        <%- include("./partials/scripts.ejs") %>
+            <div class="card-body">
+                <!-- Blog Title -->
+                <div class="card-title-container">
+                    <h2 class="card-title"><%= blog.title %></h2>
+                    <!-- Edit Blog Title Button: Shown only to blog creator or admin -->
+                    <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
+                        <a href="#" class="edit-blogTitle-btn"><i class="fas fa-pencil-alt"></i></a>
+                    <% } %>
+                </div>
+
+                <!-- Blog Content -->
+                <div class="content-container">
+                    <pre><%= blog.content %></pre>
+
+                    <!-- Edit Blog Content Button: Shown only to blog creator or admin -->
+                    <% if (locals.user && (locals.user._id===blog.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
+                        <a href="/blog/edit/<%= blog.id %>" class="edit-content-btn">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Blog Creation Time -->
+            <span class="blog-time">
+                <%= new Date(blog.createdAt).toLocaleString() %>
+            </span>
+
+            <!-- Author Info Section -->
+            <div class="profile-container">
+                <img src="<%= blog.createdBy.profileImageURL %>" alt="Profile Image" width="50" height="50">
+                <span class="profile-name">
+                    <%= blog.createdBy.name %>
+                </span>
+            </div>
+
+            <!-- Comment Section: Only visible to logged-in users -->
+            <% if (locals.user) { %>
+                <div class="comment-container">
+                    <form action="/blog/comment/<%= blog.id %>" method="POST" class="comment-form">
+                        <textarea id="comment-textarea" name="comment" placeholder="Write a comment..." required></textarea>
+                        <button type="submit">Post Comment</button>
+                    </form>
+                </div>
+            <% } else { %>
+                <!-- Message prompting users to sign in to comment -->
+                <p style="color: gray; text-align: center; margin-top: 20px;">
+                    <a href="/user/signin" style="color: #007bff; text-decoration: none;">Sign in</a> to post a comment.
+                </p>
+            <% } %>
+
+            <!-- Existing Comments Section: Visible to everyone -->
+            <div class="comment-section">
+                <div class="comment-container">
+                    <h1>Comments (<%= comments.length %>)</h1>
+                    <div class="comment">
+                        <% comments.forEach(comment => { %>
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <!-- Comment Author's Profile Image and Name -->
+                                    <img src="<%= comment.createdBy.profileImageURL %>" alt="Profile Image">
+                                    <span class="profile-name">
+                                        <%= comment.createdBy.name %>
+                                    </span>
+
+                                    <!-- Comment Timestamp -->
+                                    <span class="comment-time">
+                                        <%= new Date(comment.createdAt).toLocaleString() %>
+                                    </span>
+
+                                    <!-- Edit and Delete Comment Buttons: Shown only to comment creator or admin -->
+                                    <% if (locals.user && (locals.user._id===comment.createdBy._id.toString() || locals.user.role==='ADMIN' )) { %>
+                                        <button type="submit" class="edit-comment-btn">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>                                        
+                                        <form class="delete-comment-form" action="/blog/comment/delete/<%= comment.id %>" method="POST">
+                                            <button type="submit" class="delete-comment-btn">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                                <!-- Comment Content -->
+                                <pre><%= comment.content %></pre>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </body>
+
+<%- include("./partials/scripts.ejs") %>
+
 <script>
     function adjustHeight(element) {
         element.style.height = "auto";

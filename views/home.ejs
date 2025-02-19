@@ -33,6 +33,12 @@
             .card-body {
                 padding: 15px;
             }
+
+            .blog-time {
+                font-size: 0.9rem;
+                color: #666;
+                margin-left: 10px;
+            }
         </style>
 </head>
 
@@ -51,6 +57,7 @@
                         </h5>
                         <a href="/blog/<%= blog._id %>" class="btn btn-primary">View Blog</a>
                     </div>
+                    <span class="blog-time"><%= new Date(blog.createdAt).toLocaleString() %></span>
                 </div>
                 <% }) %>
         </div>
